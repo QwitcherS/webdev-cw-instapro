@@ -1,7 +1,8 @@
 import { USER_POSTS_PAGE, LOADING_PAGE, POSTS_PAGE } from "../routes.js";
 import { renderHeaderComponent } from "./header-component.js";
-import { posts, goToPage, getToken } from "../index.js";
+import { posts, goToPage, getToken, formateDate } from "../index.js";
 import { likeApi, dislikeApi } from "../api.js";
+
 
 export function renderUserPostsPageComponent({ appEl }) {
   const appHtml = `
@@ -12,21 +13,22 @@ export function renderUserPostsPageComponent({ appEl }) {
               </div>`;
 
   appEl.innerHTML = appHtml;
-  const postsHTML = appEl.querySelector('.posts')
+  const postsHTML = appEl.querySelector(".posts");
   let postHTML = '';
 
   posts.forEach((post) => {
     let likes = '0';
     if (post.likes.length === 1) {
-      likes = post.likes[0].name
+      likes = post.likes[0].name;
     } else if (post.likes.length === 2) {
       likes = `${post.likes[0].name}, ${post.likes[1].name}`;
     } else if (post.likes.length > 2) {
       likes = `${post.likes[0].name}, ${post.likes[1].name} и еще ${post.likes.length - 2} человек`;
-    }
+    };
+
     postHTML = `
 <li class="post">
-<div class="post-header" data-userId="${post.user.id}" >
+<div class="post-header" data-user-id="${post.user.id}" >
     <img  src="${post.user.imageUrl}" class="post-header__user-image">
     <p class="post-header__user-name">${post.user.name}</p>
 </div>
@@ -34,14 +36,13 @@ export function renderUserPostsPageComponent({ appEl }) {
   <img class="post-image" src="${post.imageUrl}">
 </div>
 <div class="post-likes">
-  <button data-postId="${post.id}"
+  <button data-post-id="${post.id}"
   data-isLiked="${post.isLiked}"
-  data-likes="${post.likes.length}" 
   class="like-button">
     <img src="./assets/images/${post.isLiked ? "like-active.svg" : "like-not-active.svg"}">
   </button>
   <p class="post-likes-text">
-  Нравится: <strong>${post.likes}</strong>
+  Нравится: <strong>${likes}</strong>
   </p>
 </div>
 <p class="post-text">
@@ -49,11 +50,12 @@ export function renderUserPostsPageComponent({ appEl }) {
   ${post.description}
 </p>
 <p class="post-date">
-  ${post.date}
+  ${formateDate(post.createdAt)}
 </p>
 </li>
 `;
     postsHTML.innerHTML += postHTML;
+
   });
 
   renderHeaderComponent({
@@ -66,7 +68,7 @@ export function renderUserPostsPageComponent({ appEl }) {
         userId: userEl.dataset.userId,
       });
     });
-  }
+  };
 
   for (let userEl of document.querySelectorAll(".like-button")) {
     userEl.addEventListener("click", () => {
@@ -74,7 +76,10 @@ export function renderUserPostsPageComponent({ appEl }) {
       const postId = userEl.dataset.postId;
       if (isLiked) {
         goToPage(LOADING_PAGE);
-        dislikeApi({ postId: postId, token: getToken() })
+        dislikeApi({
+          postId: postId,
+          token: getToken()
+        })
           .then(() => {
             goToPage(POSTS_PAGE);
           })
@@ -83,7 +88,10 @@ export function renderUserPostsPageComponent({ appEl }) {
           });
       } else {
         goToPage(LOADING_PAGE);
-        likeApi({ postId: postId, token: getToken() })
+        likeApi({
+          postId: postId,
+          token: getToken()
+        })
           .then(() => {
             goToPage(POSTS_PAGE);
           })

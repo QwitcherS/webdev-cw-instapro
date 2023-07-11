@@ -18,6 +18,9 @@ import {
 import { addPosts } from "./api.js";
 import { renderUserPostsPageComponent } from "./components/user-posts-page-component.js";
 import { getUserPosts } from "./api.js";
+import { ru } from "date-fns/locale";
+import { formatDistanceToNow } from "date-fns";
+
 
 export let user = getUserFromLocalStorage();
 export let page = null;
@@ -37,19 +40,11 @@ export const logout = () => {
   removeUserFromLocalStorage();
   goToPage(POSTS_PAGE);
 };
-export const now = (commentDate) => {
-  let date = new Date();
-  let month = (date.getMonth() + 1).toString().padStart(2, '0');
-  let day = date.getDate().toString().padStart(2, '0');
-  let year = date.getFullYear().toString().substr(-2);
-  let hours = date.getHours().toString().padStart(2, '0');
-  let minutes = date.getMinutes().toString().padStart(2, '0');
-  const resultDate = `${day}.${month}.${year} ${hours}:${minutes}`;
-  return resultDate;
-}
-/**
- * Включает страницу приложения
- */
+
+export const formateDate = (date) => {
+  return formatDistanceToNow(new Date(date), { addSuffix: true, locale: ru });
+};
+
 export const goToPage = (newPage, data) => {
   if (
     [
@@ -83,10 +78,12 @@ export const goToPage = (newPage, data) => {
     }
 
     if (newPage === USER_POSTS_PAGE) {
-      // TODO: реализовать получение постов юзера из API
       page = LOADING_PAGE;
       renderApp();
-      return getUserPosts({ userId: data.userId, token: getToken() })
+      return getUserPosts({
+        userId: data.userId,
+        token: getToken()
+      })
         .then(
           (newPosts) => {
             page = USER_POSTS_PAGE;
@@ -141,11 +138,11 @@ const renderApp = () => {
           .then(() => {
             goToPage(POSTS_PAGE);
           })
-        // .catch(() => {
-        //   document
-        //     .querySelector(".form-error")
-        //     .classList.remove("--not-entered");
-        // });
+          .catch(() => {
+            document
+              .querySelector(".form-error")
+              .classList.remove("--not-entered");
+          });
       },
     });
   }
@@ -160,8 +157,7 @@ const renderApp = () => {
   if (page === USER_POSTS_PAGE) {
     return renderUserPostsPageComponent({
       appEl
-    }
-    );
+    });
   }
 };
 

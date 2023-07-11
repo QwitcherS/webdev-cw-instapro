@@ -5,15 +5,27 @@ import { renderPostsPageComponent } from "./components/posts-page-component.js";
 export const attributesLikes = (data) => {
     if (data.isLiked) {
         data.img.src = `./assets/images/like-not-active.svg`;
-        dislikeApi({ postId: data.postId, token: data.token })
+        dislikeApi({
+            postId: data.postId,
+            token: data.token
+        })
             .then((responseData) => {
-                rewritePosts(data.postId, responseData.post);
+                rewritePosts(
+                    data.postId,
+                    responseData.post
+                );
             })
     } else {
         data.img.src = `./assets/images/like-active.svg`;
-        likeApi({ postId: data.postId, token: data.token })
+        likeApi({
+            postId: data.postId,
+            token: data.token
+        })
             .then((responseData) => {
-                rewritePosts(data.postId, responseData.post);
+                rewritePosts(
+                    data.postId,
+                    responseData.post
+                );
             })
     }
 };
